@@ -853,7 +853,7 @@ char *InternalRead(struct mpsse_context *mpsse, int size)
  * Returns a pointer to the read data on success.
  * Returns NULL on failure.
  */
-#ifdef SWIGPYTHON
+#if defined(SWIGPYTHON) || defined(SWIGPERL)
 swig_string_data Read(struct mpsse_context *mpsse, int size)
 #else
 char *Read(struct mpsse_context *mpsse, int size)
@@ -863,7 +863,7 @@ char *Read(struct mpsse_context *mpsse, int size)
 
 	buf = InternalRead(mpsse, size);
 
-#ifdef SWIGPYTHON
+#if defined(SWIGPYTHON) || defined(SWIGPERL)
 	swig_string_data sdata = { 0 };
 	sdata.size = size;
 	sdata.data = buf;
@@ -933,7 +933,7 @@ char ReadBits(struct mpsse_context *mpsse, int size)
  * Returns a pointer to the read data on success.
  * Returns NULL on failure.
  */
-#ifdef SWIGPYTHON
+#if defined(SWIGPYTHON) || defined(SWIGPERL)
 swig_string_data Transfer(struct mpsse_context *mpsse, char *data, int size)
 #else
 char *Transfer(struct mpsse_context *mpsse, char *data, int size)
@@ -985,7 +985,7 @@ char *Transfer(struct mpsse_context *mpsse, char *data, int size)
 		}
 	}
 
-#ifdef SWIGPYTHON
+#if defined(SWIGPYTHON) || defined(SWIGPERL)
 	swig_string_data sdata = { 0 };
 	sdata.size = n;
 	sdata.data = (char *) buf;

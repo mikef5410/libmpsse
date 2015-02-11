@@ -206,7 +206,7 @@ int PinState(struct mpsse_context *mpsse, int pin, int state);
 int Tristate(struct mpsse_context *mpsse);
 char Version(void);
 
-#ifdef SWIGPYTHON
+#if defined(SWIGPYTHON) || defined(SWIGPERL)
 typedef struct swig_string_data
 {
         int size;
