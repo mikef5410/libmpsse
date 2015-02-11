@@ -10,10 +10,10 @@ WriteMakefile(
      'OBJECT' => [ 'mpsse_wrap.o', 'mpsse.o','support.o' ]    # Object files
              );
 
-sub MY::postamble {
-  return<<'MAKE_FRAG';
-mpsse_wrap.c: mpsse.i
-	swig -perl mpsse.i
-
-MAKE_FRAG
-  }
+#sub MY::postamble {
+#  return<<'MAKE_FRAG';
+#mpsse_wrap.c: mpsse.i
+#	swig -perl mpsse.i
+#
+#MAKE_FRAG
+#  }
