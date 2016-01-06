@@ -1,0 +1,87 @@
+#!/usr/bin/perl
+#
+
+use FTDI;
+use MPSSE;
+use Time::HiRes qw(sleep);
+use Data::Dumper qw(Dumper);
+
+my $devaddr=0x50;
+my $usb_desc=undef;
+my $usb_serial=undef;
+
+my $i2c = MPSSE::Open(0x0403,0x6011, $MPSSE::I2C, 400000,
+                      $MPSSE::MSB, $MPSSE::IFACE_A, $usb_desc, $usb_serial);
+
+if ($i2c->{open} != 1) {die "can't find device!"; }
+
+my $ftdi = $i2c->{ftdi};
+
+my $offs=0;
+
+my $ret = write_then_read($devaddr, pack("C",$offs), 5);
+
+dumppkt($ret);
+
+$i2c->Close();
+exit;
+
+sub write_then_read {
+  my $addr = shift;
+  my $outData = shift;
+  my $readlen = shift;
+
+  my $readData="";
+  my $Waddr = $addr<<1;
+  my $Raddr = $Waddr | 0x1;
+  $i2c->SendAcks();
+
+  if (length($outData)) {
+    $i2c->Start();
+    $i2c->Write(pack("C",$Waddr ),1); 
+    if ($i2c->GetAck()) {
+    } else {
+      say("No ack on address.");
+    }
+    $i2c->Write($outData, length($outData));
+    if (!$i2c->GetAck()) { say("No ack on last data"); }
+  }
+  if ($readlen) {
+    #Read phase
+    $i2c->Start(); #Repeated start.
+    $i2c->Write(pack("C",$Raddr),1);
+    $readData = $i2c->Read($readlen);
+    $i2c->SendNacks();
+    $i2c->Read(1);
+  }
+
+  $i2c->Stop();
+  return($readData);
+}
+
+sub say {
+  my $arg=shift;
+  print("$arg\n");
+}
+
+sub dumppkt {
+  my $pkt=shift;
+  my $ascii="";
+
+  printf("%04x - ",0);
+  my $j=0;
+  for ( $j=0; $j<length($pkt); $j++) {
+    my $val=unpack("C",substr($pkt,$j,1));
+    if ($j && !($j % 16)) {
+      printf("   $ascii");
+      $ascii="";
+      printf("\n%04x - ",$j);
+    }
+    if (($val < 0x20) || ($val > 0x7E)) {
+      $ascii .= '.';
+    } else {
+      $ascii .= chr($val);
+    }
+    printf("%02x ",$val);
+  }
+}
